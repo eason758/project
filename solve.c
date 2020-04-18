@@ -156,7 +156,7 @@ int evaluateTree(BTNode *root,int dep)
                 table[i].can_use = true;
             }
             else{
-                for(int i = 0 ; strcmp(table[i].var_list, root->right->lexeme) != 0;i++);
+                for(i = 0 ; strcmp(table[i].var_list, root->right->lexeme) != 0;i++);
                 table[i].can_use = false;
             }
 
@@ -176,6 +176,7 @@ int evaluateTree(BTNode *root,int dep)
                 if(rv == 0) error(DIVIDEZERO);                      //可能1/(1/100) = 1/0 (int特性)
                 retval = lv / rv;
             }
+
             else if((strcmp(root->lexeme, "|") == 0))
                 retval = lv | rv;
             else if((strcmp(root->lexeme, "&") == 0))
@@ -189,9 +190,7 @@ int evaluateTree(BTNode *root,int dep)
             retval = 0;
         }
     }
-    //printf("%d,%d,%d,%s\n", lv,rv,root->val,root->lexeme);
     root->val = retval;
-    //printf("%d,%d,%d,%s\n", lv,rv,root->val,root->lexeme);
     return retval;
 }
 
@@ -206,11 +205,13 @@ BTNode* makeNode(TokenSet tok, const char *lexe){
     int i;
 
     if(node->data == ID){
-        for(i = 0;strcmp(table[i].var_list, lexe) != 0 && i<=count; i++);
-        if(table[i].can_use) node->can_use = true;
+        for(i = 0;strcmp(table[i].var_list, lexe) != 0 && i<count; i++);
+        if(i==count) node->can_use = true;
+        else if(table[i].can_use) node->can_use = true;
         else node->can_use = false;
     }
     else node->can_use = true;
+
     return node;
 }
 
