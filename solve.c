@@ -35,7 +35,7 @@ int match(TokenSet) ;
 void freeTree(BTNode *);
 BTNode* makeNode(TokenSet, const char *);
 
-//�S�ϥΨ쪺*****************************
+//沒使用到的*****************************
 void printPrefix(BTNode *) ;
 int evaluateTree(BTNode *,int) ;
 int getval();
@@ -43,29 +43,29 @@ void setval(char *, int);
 //***************************************
 
 
-//�ۤv�s�W��***************************************
+//自己新增的***************************************
 void printCODE(BTNode *, int); //print assembly code
-int get_memory(char *);  //�o�X�@�ӰO����Ŷ�(4n)
+int get_memory(char *);  //得出一個記憶體空間(4n)
 
 typedef struct _var{
-    char var_list[MAXLEN];      //�x�s�X�{�L�� variable
+    char var_list[MAXLEN];      //儲存出現過的 variable
     int val;
     bool can_use;
 }var;
 
 int count = 3;
 var table[65];
-bool assign;                    //�P�_�o��statement�O�_�w�gassign�L�F
+bool assign;                    //判斷這行statement是否已經assign過了
 void get_out();
 int total_statement = 0;
 BTNode* glo_retp[MAXLEN];
 
-var registor_storage[8];     //�Ȯ��x�s�bregistor���ܼƭ�
-bool reg_store_flag[8];      //�T�{�o��registor�O�_���x�s�ܼ�
+var registor_storage[8];     //暫時儲存在registor的變數們
+bool reg_store_flag[8];      //確認這格registor是否有儲存變數
 void reg_to_mem(int);
-int print_new_var = 0;       //print���ɭԼW�[���s�ܼ�(�L�צbreg��mem)
-int assembly_count = 3;         //count mem�ƶq
-bool x_y_z_stored[3];       //x y z ���S���Q�s�i�Lmem
+int print_new_var = 0;       //print的時候增加的新變數(無論在reg或mem)
+int assembly_count = 3;         //count mem數量
+bool x_y_z_stored[3];       //x y z 有沒有被存進過mem
 var table2[65];
 
 bool x_y_z_can_use[3];
@@ -111,9 +111,9 @@ int getval(void){
     }
     else if (match(ID)) {
 
-        for(i = 0; strcmp(getLexeme(), table[i].var_list) != 0 && i < count ; i++); //��vat_list���S���X�{�L�@�˪��ܼ�
+        for(i = 0; strcmp(getLexeme(), table[i].var_list) != 0 && i < count ; i++); //找vat_list有沒有出現過一樣的變數
 
-        if(i == count) error(NOTFOUND);//�Ĥ@���X�{�b�k�䪺�ܼ� error
+        if(i == count) error(NOTFOUND);//第一次出現在右邊的變數 error
         else retval = table[i].val;
 
     }
@@ -122,7 +122,7 @@ int getval(void){
 
 void setval(char *str, int val){
     int i;
-    for(i = 0; strcmp(str, table[i].var_list) != 0 && i < count ; i++); //��vat_list���S���X�{�L�@�˪��ܼ�
+    for(i = 0; strcmp(str, table[i].var_list) != 0 && i < count ; i++); //找vat_list有沒有出現過一樣的變數
 
     if(i==count){
         if(count>64) error(RUNOUT);
@@ -173,7 +173,7 @@ int evaluateTree(BTNode *root,int dep)
             else if (strcmp(root->lexeme, "*") == 0)
                 retval = lv * rv;
             else if (strcmp(root->lexeme, "/") == 0){
-                if(rv == 0) error(DIVIDEZERO);                      //�i��1/(1/100) = 1/0 (int�S��)
+                if(rv == 0) error(DIVIDEZERO);                      //可能1/(1/100) = 1/0 (int特性)
                 retval = lv / rv;
             }
             else if((strcmp(root->lexeme, "|") == 0))
@@ -219,9 +219,9 @@ TokenSet getToken(void)
     int i;
     char c;
 
-    while ( (c = fgetc(stdin)) == ' ' || c== '\t' );  // �����ťզr��
+    while ( (c = fgetc(stdin)) == ' ' || c== '\t' );  // 忽略空白字元
 
-    if (isdigit(c)) {//�P�_����@�ӼƦr(�ҥH�̫�|�^��INT) �����o�ǥu�O�b���r�Ű����Ӥw
+    if (isdigit(c)) {//判斷收到一個數字(所以最後會回傳INT) 中間這些只是在推字符偵測而已
         lexeme[0] = c;
         c = fgetc(stdin);
         i = 1;
@@ -230,42 +230,42 @@ TokenSet getToken(void)
             ++i;
             c = fgetc(stdin);
         }
-        ungetc(c, stdin);//�M�Žw�İ�
+        ungetc(c, stdin);//清空緩衝區
         lexeme[i] = '\0';
         return INT;
     }
-    else if (c == '+' || c == '-') {//�P�_����@��ADD �� SUB
+    else if (c == '+' || c == '-') {//判斷收到一個ADD 或 SUB
         lexeme[0] = c;
         lexeme[1] = '\0';
         return ADDSUB;
     }
-    else if (c == '|' || c == '&' || c =='^') {//�P�_����@��OR AND XOR
+    else if (c == '|' || c == '&' || c =='^') {//判斷收到一個OR AND XOR
         lexeme[0] = c;
         lexeme[1] = '\0';
         return ORANDXOR;
     }
-    else if (c == '*' || c == '/') {//�P�_����MUL DIV
+    else if (c == '*' || c == '/') {//判斷收到MUL DIV
         lexeme[0] = c;
         lexeme[1] = '\0';
         return MULDIV;
     }
-    else if (c == '\n') {//�P�_�@��⦡����
+    else if (c == '\n') {//判斷一行算式結束
         lexeme[0] = '\0';
         return END;
     }
-    else if (c == '=') {    //�P�_���� "="(ASSIGN)
+    else if (c == '=') {    //判斷收到 "="(ASSIGN)
         strcpy(lexeme, "=");
         return ASSIGN;
     }
-    else if (c == '(') {    //�P�_���� "(" (LPAREN)
+    else if (c == '(') {    //判斷收到 "(" (LPAREN)
         strcpy(lexeme, "(");
         return LPAREN;
     }
-    else if (c == ')') {    //�P�_����")" (RPAREN)
+    else if (c == ')') {    //判斷收到")" (RPAREN)
         strcpy(lexeme, ")");
         return RPAREN;
     }
-    else if (isalpha(c) || c == '_'){ //�P�_�����ܼ� �ҥH�^��ID (�����o�ǥu�O�b���r�Ű����Ӥw)
+    else if (isalpha(c) || c == '_'){ //判斷收到變數 所以回傳ID (中間這些只是在推字符偵測而已)
         lexeme[0] = c;
         c = fgetc(stdin);
         i = 1;
@@ -275,14 +275,14 @@ TokenSet getToken(void)
             c = fgetc(stdin);
         }
         ungetc(c, stdin);
-        lexeme[i] = '\0';//�M�Žw�İ�
+        lexeme[i] = '\0';//清空緩衝區
         return ID;
     }
-    else if (c == EOF) {//�P�_�����Ӵ��굲���F
+    else if (c == EOF) {//判斷收到整個測資結束了
         return ENDFILE;
     }
     else {
-        return UNKNOWN;//�P�_����_�Ǫ��F��
+        return UNKNOWN;//判斷收到奇怪的東西
     }
 }
 
@@ -342,7 +342,7 @@ BTNode* factor(void)
                 error(NOTNUMID);
             }
         }
-        else if (match(ORANDXOR)){// ??????���X��????����error???
+        else if (match(ORANDXOR)){// ??????不合格????應該error???
             error(NOTNUMID);
         }
         else if (match(LPAREN)) {
@@ -352,7 +352,7 @@ BTNode* factor(void)
                 advance();
             }
             else {
-                error(MISPAREN);//�����Fexpr���ۦA�����o�S�o�{�A��>�X���D
+                error(MISPAREN);//結束了expr接著再偵測卻沒發現括弧>出問題
             }
         }
         else if (match(ASSIGN)) {
@@ -430,12 +430,12 @@ BTNode* expr_tail(BTNode *left)
     else return left;
 }
 
-void advance(void)//�Ұ�getToken()�ӧ���e�ݪ����@���جO����token �ýᤩ��lookahead
+void advance(void)//啟動getToken()來抓取前端的那一項目是什麼token 並賦予給lookahead
 {
     lookahead = getToken();
 }
 
-int match(TokenSet token) //�P�_�o�� token �� lookahead�O�_�@��
+int match(TokenSet token) //判斷這個 token 跟 lookahead是否一樣
 {
     if (lookahead == UNKNOWN) advance();
     return token == lookahead;
@@ -448,10 +448,10 @@ char* getLexeme(void)
 
 /* statement := END | expr END */
 
-void statement(int i)//�u�B�z�@��ƾǺ⦡
+void statement(int i)//只處理一行數學算式
 {
-    assign = false;             //��l�� �N���Ĥ@��assign�٨S�X�{
-    if (match(ENDFILE)) {       //�̲׵���(�p�G���w��������B�S��exit 1����)
+    assign = false;             //初始化 代表第一次assign還沒出現
+    if (match(ENDFILE)) {       //最終結尾(如果平安完成測資且沒有exit 1的話)
         if(total_statement > 0) get_out();
         else{
             printf("MOV r0 [0]\n");
@@ -463,7 +463,7 @@ void statement(int i)//�u�B�z�@��ƾǺ⦡
     }
     else if (match(END)) {
 
-        advance();          //get �� ���� �N�A�����@�� �M��A��while�^��
+        advance();          //get 到 換行 就再接收一次 然後再等while回來
 
     }
     else {
@@ -505,7 +505,7 @@ void printCODE(BTNode *node, int reg){
                 if(i<8){
                     printf("MOV r%d %d\n",i,node->left->val);
                 }
-                else{//���breg�̭�
+                else{//不在reg裡面
                     printf("MOV r%d %d\n",reg, node->left->val);
 
                     if(strcmp(node->right->lexeme, "x") == 0){
@@ -550,7 +550,7 @@ void printCODE(BTNode *node, int reg){
                 if(i<8){
                     if(i != reg)printf("MOV r%d r%d\n",i,reg);
                 }
-                else{//���breg�̭�
+                else{//不在reg裡面
 
                     if(strcmp(node->right->lexeme, "x") == 0){
                         if(x_y_z_stored[0]) printf("MOV [0] r%d\n",reg);
@@ -619,7 +619,7 @@ void printCODE(BTNode *node, int reg){
                     break;
             }
             if(node->can_use){
-                printf("MOV r%d %d\n",left_reg,node->val);                                        //0.1�����D?
+                printf("MOV r%d %d\n",left_reg,node->val);                                        //0.1的問題?
             }
             else{
                 printCODE(node->left,left_reg);
@@ -638,8 +638,8 @@ void printCODE(BTNode *node, int reg){
             }
             for(i = 0; strcmp(node->lexeme, registor_storage[i].var_list) != 0 && i<8 ; i++);
 
-            if(i==8)printf("MOV r%d [%d]\n", reg, get_memory(node->lexeme)); //id�bmem �qmem�ɵ����wreg
-            else    printf("MOV r%d r%d\n", reg, i);                         //id�breg array �h�����wreg
+            if(i==8)printf("MOV r%d [%d]\n", reg, get_memory(node->lexeme)); //id在mem 從mem借給指定reg
+            else    printf("MOV r%d r%d\n", reg, i);                         //id在reg array 搬給指定reg
 
             break;
 
@@ -660,7 +660,7 @@ int get_memory(char * lex){
 
     int i;
 
-    for(i = 3; strcmp(lex, table2[i].var_list) != 0 && i<=count ; i++); //table������(�O����Ʀr)����print�譱���@��(���ݬd��)
+    for(i = 3; strcmp(lex, table2[i].var_list) != 0 && i<=count ; i++); //table的順序(記憶體數字)其實跟print方面的一樣(有待查證)
     if(i<count)return 4*i;
 
 return 4*i;
