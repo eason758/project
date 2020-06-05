@@ -75,7 +75,9 @@ namespace TA
                     //TODO: what will happen if player does not follow the rule?(or the game does not finished properly)
                 }
                 updateGuiGame();
-
+                
+                //switch player???
+                
             } 
                 //TODO: what will happen if who wins?
 
