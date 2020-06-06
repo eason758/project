@@ -5,70 +5,80 @@
 #include <algorithm>
 #include <random>
 #include <ctime>
-#include <iostream>
-using namespace TA;
 
 class AI : public AIInterface
 {
+private:
+    friend class Range;
+    int last_x, last_y; //opponent's previous placement in 9*9 /*updated by enemy's playOneRound()*/
+    class Range
+    {
+        public:
+        int x1, y1, x2, y2; // can place in (x1,y1) to (x2,y2)
+    };
+    Range myRange;                          // record current legal step range through last_x_y
+    
+    void setRange(TA::UltraBoard &inputMAP)
+        {
+        int offset_x = last_x % 3,offset_y = last_y % 3;
+        myRange.x1 = offset_x * 3;
+        myRange.y1 = offset_y * 3;
+        myRange.x2 = myRange.x1 + 2;
+        myRange.y2 = myRange.y1 + 2;
+
+        for (int i = myRange.x1; i <= myRange.x2; i++)
+            for (int j = myRange.y1; j <= myRange.y2; j++)
+            {
+                if (inputMAP.get(i, j) == TA::BoardInterface::Tag::None)
+                    return;//not a full board
+            }
+        //full board
+        myRange.x1 = 0;
+        myRange.y1 = 0;
+        myRange.x2 = 8;
+        myRange.y2 = 8;
+        return;
+    }
+
+
 public:
-
-//test
-int x_test;
-int y_test;
-//test
-
-int last_step_x;
-int lasy_step_y;
-
     void init(bool order) override
-    {//init your AI
-
-    //test
-        x_test = 0;
-        y_test = 0;
-    //test
-        // TODO: init any way you want
+    {
+        // any way
     }
 
     void callbackReportEnemy(int x, int y) override
     {
-        (void) x;
-        (void) y;
-        //let (last_step_x, last_step_y) = (x,y)
+        last_x = x;
+        last_y = y;
+        // give last step
     }
 
-    std::pair<int,int> queryWhereToPut(UltraBoard MainBoard) override
+    std::pair<int,int> queryWhereToPut(TA::UltraBoard MainBoard) override
     {
-
-        //the place where do decisions
-        //not only need to do decsion but also need to set( void call(...) in game.h )
-        //or just return the last decision pair ( auto call(...) in game.h) 
-        //the proccess dont take over 1 second(1000)millisecond
-
-        //test
+        int result_x;
+        int result_y;
+        setRange(MainBoard);
 
         //random blablabla... I dont know the principle...
         std::random_device rd;
         std::default_random_engine gen = std::default_random_engine(rd());
-        std::uniform_int_distribution<int> dis(0,8);
+        std::uniform_int_distribution<int> dis_x(myRange.x1,myRange.x2);
+        std::uniform_int_distribution<int> dis_y(myRange.y1,myRange.y2);
+        
         // any way , it can generate random integer number by
         // let x = dis(gen);
 
-        int test_x;
-        int test_y;
 
 
 
         for(;1;){
-            test_x = dis(gen);
-            test_y = dis(gen);
-            if(MainBoard.get(test_x,test_y) == Board::Tag::None){
-                std::cout<<test_x<<" "<<test_y<<std::endl;
-                return std::make_pair(test_y,test_x);
+            result_x = dis_x(gen);
+            result_y = dis_y(gen);
+            if(MainBoard.get(result_x,result_y) == TA::Board::Tag::None){
+                return std::make_pair(result_x,result_y);
             }
         }        
-//test
+
     }
-
-
 };
