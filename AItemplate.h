@@ -6,6 +6,7 @@
 #include <random>
 #include <ctime>
 #include <iostream>
+using namespace TA;
 
 class AI : public AIInterface
 {
@@ -16,13 +17,16 @@ int x_test;
 int y_test;
 //test
 
+int last_step_x;
+int lasy_step_y;
+
     void init(bool order) override
     {//init your AI
 
-        //test
+    //test
         x_test = 0;
         y_test = 0;
-        //test
+    //test
         // TODO: init any way you want
     }
 
@@ -30,12 +34,10 @@ int y_test;
     {
         (void) x;
         (void) y;
-        //what is this? give enermy your last step?
-        //but how? its return value is void?
-        //TODO: give last step
+        //let (last_step_x, last_step_y) = (x,y)
     }
 
-    std::pair<int,int> queryWhereToPut(TA::UltraBoard) override
+    std::pair<int,int> queryWhereToPut(UltraBoard MainBoard) override
     {
 
         //the place where do decisions
@@ -44,15 +46,29 @@ int y_test;
         //the proccess dont take over 1 second(1000)millisecond
 
         //test
-        int test_x = x_test;
-        int test_y = y_test;
-        if(x_test>=8)
-        {
-            y_test++;
-            x_test = 0;
-        }else x_test++;
-        //test
 
-        return std::make_pair(test_x,test_y);
+        //random blablabla... I dont know the principle...
+        std::random_device rd;
+        std::default_random_engine gen = std::default_random_engine(rd());
+        std::uniform_int_distribution<int> dis(0,8);
+        // any way , it can generate random integer number by
+        // let x = dis(gen);
+
+        int test_x;
+        int test_y;
+
+
+
+        for(;1;){
+            test_x = dis(gen);
+            test_y = dis(gen);
+            if(MainBoard.get(test_x,test_y) == Board::Tag::None){
+                std::cout<<test_x<<" "<<test_y<<std::endl;
+                return std::make_pair(test_y,test_x);
+            }
+        }        
+//test
     }
+
+
 };
