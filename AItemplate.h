@@ -26,32 +26,33 @@ private:
         myRange.x2 = myRange.x1 + 2;
         myRange.y2 = myRange.y1 + 2;
 
-        for (int i = myRange.x1; i <= myRange.x2; i++)
-            for (int j = myRange.y1; j <= myRange.y2; j++)
-            {
-                if (inputMAP.get(i, j) == TA::BoardInterface::Tag::None)
-                    return;//not a full board
-            }
-        //full board
-        myRange.x1 = 0;
-        myRange.y1 = 0;
-        myRange.x2 = 8;
-        myRange.y2 = 8;
-        return;
+        if(inputMAP.sub(offset_x,offset_y).full()){//full board
+            myRange.x1 = 0;
+            myRange.y1 = 0;
+            myRange.x2 = 8;
+            myRange.y2 = 8;
+            return;
+        }
+        else{
+            return;
+        }
     }
 
 
 public:
     void init(bool order) override
     {
-        // any way
+        myRange.x1 = 0;
+        myRange.y1 = 0;
+        myRange.x2 = 8;
+        myRange.y2 = 8;
     }
 
     void callbackReportEnemy(int x, int y) override
     {
         last_x = x;
         last_y = y;
-        // give last step
+        //get enemy last step
     }
 
     std::pair<int,int> queryWhereToPut(TA::UltraBoard MainBoard) override
@@ -69,9 +70,6 @@ public:
         // any way , it can generate random integer number by
         // let x = dis(gen);
 
-
-
-
         for(;1;){
             result_x = dis_x(gen);
             result_y = dis_y(gen);
@@ -79,6 +77,7 @@ public:
                 return std::make_pair(result_x,result_y);
             }
         }        
+
 
     }
 };
