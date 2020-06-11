@@ -11,10 +11,10 @@ class AI : public AIInterface
 private:
 
         
-        bool first_player;
-        bool first_player_first_step;    // first_step_flag
-        std::pair<int,int> target_board[9];
-        int i; // for target board
+        bool first_player;               
+        bool first_player_first_step;    // indicate this is first step
+        std::pair<int,int> target_board[2]; //which board to force enemy to set
+        bool i; // for target board
         TA::BoardInterface::Tag mytag;
 
 
@@ -52,12 +52,11 @@ private:
 
 
 
-
+    // 2 -> 0 ; 0->2 ; 1->1
     int opposite(int pos){
         if(pos == 2) return 0;
         else if(pos == 0) return 2;
         else return 1;
-
     }
 
     bool Ultra_settable(int x,int y,TA::UltraBoard board){
@@ -66,8 +65,6 @@ private:
     bool settable(int x,int y,TA::Board board){
         return board.get(x,y) == TA::Board::Tag::None;
     }
-
-
         //if got the chance ,make a line ,whatever the situation or the cost is
     std::pair<int,int> make_line_step(TA::Board &board,TA::UltraBoard MainBoard){
 
@@ -158,10 +155,11 @@ private:
                     return std::make_pair(2,2);
         		}
 			}
+            return random_set(MainBoard);
 
     }
 
-
+        //set randomly and legel
     std::pair<int,int>random_set(TA::UltraBoard MainBoard){
         
         int result_x;
@@ -190,15 +188,11 @@ public:
     void init(bool order) override
     {
         if(order){
-            i = -1;
+            i = false;
             mytag = TA::Board::Tag::O;
             first_player_first_step = true;
             first_player = true;
             
-            for(int i = 0 ; i< 9 ;i++){
-                target_board[i].first = -1;
-                target_board[i].second = -1;
-            }
         }
         else{
             mytag = TA::Board::Tag::X;
@@ -218,8 +212,8 @@ public:
     std::pair<int,int> queryWhereToPut(TA::UltraBoard MainBoard) override
     {
 
-        int result_x;
-        int result_y;
+        //int result_x;
+        //int result_y;
 
         if(first_player){
 
@@ -238,8 +232,8 @@ public:
             else{
 
             //target_board init
-                if(i<0){
-                    i++;
+                if(!i){
+                    i = true;
                     target_board[0].first = myRange.x1/3;
                     target_board[0].second = myRange.y1/3;
                     target_board[1].first = opposite(target_board[0].first);
@@ -248,7 +242,7 @@ public:
                 }
             
             // step 2
-                if(!MainBoard.sub(target_board[0].first,target_board[0].second).full()){
+                else if(!MainBoard.sub(target_board[0].first,target_board[0].second).full()){
                     if(last_x%3 == 1 && last_y%3 == 1){ //enemy set middle
                         if(Ultra_settable(opposite(last_x/3)*3+target_board[0].first , opposite(last_y/3)*3+target_board[0].second,MainBoard) )
                             return std::make_pair(opposite(last_x/3)*3+target_board[0].first , opposite(last_y/3)*3+target_board[0].second);
@@ -257,14 +251,12 @@ public:
                             return std::make_pair(tmp.first+ 3*opposite(last_x/3) , tmp.second+3*opposite(last_y/3));
                         }
                     }
-                
                     else{
                         if(Ultra_settable(myRange.x1+target_board[0].first,myRange.y1+target_board[0].second,MainBoard))
                             return std::make_pair(myRange.x1+target_board[0].first , myRange.y1+target_board[0].second);
                         else{
                             std::pair<int,int> tmp = make_line_step(MainBoard.sub(myRange.x1/3,myRange.y1/3) ,MainBoard);
                             return std::make_pair( tmp.first+myRange.x1 , tmp.second+myRange.y1 );
-                    
                         }
                     }
             
@@ -272,26 +264,28 @@ public:
             // step 3
                 else{
                     if(myRange.x1 == 0 && myRange.x2 == 8){ //in the middle
-
                         if(Ultra_settable(target_board[1].first*4 ,target_board[1].second*4 ,MainBoard))
                             return std::make_pair(target_board[1].first*4 ,target_board[1].second*4);
+                        else{
+                            for(int i = 0; i < 3 ; i++)
+                            for(int j = 0; j < 3 ; j++){
 
-                        for(int i = 0; i < 3 ;i++){
-                            for(int j = 0; j< 3 ;j++){
                                 if(Ultra_settable(i*3+target_board[1].first ,j*3+target_board[1].second ,MainBoard))
+                                {
                                     return std::make_pair(i*3+target_board[1].first ,j*3+target_board[1].second);
+                                }
+                            
                             }
-                        }
+                        }   
 
                     }
                     else
                         return std::make_pair(myRange.x1+target_board[1].first , myRange.y1+target_board[1].second);
                 }
-
             }
         }
 
-
+        // second player
         setRange(MainBoard);
         return random_set(MainBoard);
 
