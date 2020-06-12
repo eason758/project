@@ -118,7 +118,7 @@ namespace TA
             last_coor=pos;
             
             //tell the enemy its coordinate  (maybe?)
-            if(user == nullptr)
+            if(enemy != nullptr)
 			    enemy->callbackReportEnemy(pos.first,pos.second);   			
 			return true;
 
