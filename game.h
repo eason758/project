@@ -38,126 +38,6 @@ namespace TA
         void setPlayer1(AIInterface *ptr) { assert(checkAI(ptr)); m_P1 = ptr; }
         void setPlayer2(AIInterface *ptr) { assert(checkAI(ptr)); m_P2 = ptr; }
 
-        // 6/13 move from run()
-        void AIvsAI(){
-            while (!checkGameover()) {   //checkGameover()   
-
-                round++;
-                AIInterface *first = nullptr;
-                AIInterface *second = nullptr;
-                BoardInterface::Tag tag;
-                if(round%2){
-                    first = m_P1;
-                	second = m_P2;
-                	tag = BoardInterface::Tag::O;
-				}
-				else{
-					first = m_P2;
-                	second = m_P1;
-                	tag = BoardInterface::Tag::X;
-				}
-
-                if (!playOneRound(first, tag, second)) {  //one move
-                    //the "first" AI made illegal move, lose the game!
-                    
-                    if(round%2)
-                        putToGui("Player1\n");
-                    else
-                        putToGui("Player2\n");
-                    putToGui(" lost!\n");
-                    //updateGuiGame();
-                    exit(-1);
-                }
-                updateGuiGame();
-            }
-            if(MainBoard.getWinTag()==BoardInterface::Tag::O){
-                putToGui("O\n");
-            }
-            else if(MainBoard.getWinTag()==BoardInterface::Tag::X){
-                putToGui("X\n");
-            }
-            else if(MainBoard.getWinTag()==BoardInterface::Tag::Tie){
-                putToGui("Tie\n");
-            }
-            else{
-                putToGui("None\n");
-            }
-            //file.close();
-        }
-        // 6/13 add
-        void PLYAYERvsAI(){
-            int order;
-            while(1){
-                putToGui("Choose your order!\n");
-                putToGui("1:first   2:second\n");
-                std::cin>>order;
-                if(order == 1){
-                    call(&AIInterface::init, m_P1, false);
-                    break;
-                }
-                else if(order == 2){
-                    call(&AIInterface::init, m_P1, true);
-                    break;
-                }
-            }
-        
-
-            while (!checkGameover()) {   //checkGameover()   
-
-                round++;
-                AIInterface *first = nullptr;
-                AIInterface *second = nullptr;
-                BoardInterface::Tag tag;
-                if((round+order)%2){
-                    first = m_P1;
-                	second = nullptr;
-                	if(round%2)
-                        tag = BoardInterface::Tag::O;
-                    else
-                        tag = BoardInterface::Tag::X;
-                }
-				else{
-					first = nullptr;
-                	second = m_P1;
-                	if(round%2)
-                        tag = BoardInterface::Tag::O;
-                    else
-                        tag = BoardInterface::Tag::X;
-				}
-
-                if (!playOneRound(first, tag, second)) {  //one move
-                    //the "first" AI made illegal move, lose the game!
-                    
-                    if((round+order)%2)
-                        putToGui("AI\n");
-                    else
-                        putToGui("You\n");
-                    putToGui(" lost!\n");
-                    //updateGuiGame();
-                    exit(-1);
-                }
-                updateGuiGame();
-
-
-
-            }
-            if(MainBoard.getWinTag()==BoardInterface::Tag::O){
-                putToGui("O\n");
-            }
-            else if(MainBoard.getWinTag()==BoardInterface::Tag::X){
-                putToGui("X\n");
-            }
-            else if(MainBoard.getWinTag()==BoardInterface::Tag::Tie){
-                putToGui("Tie\n");
-            }
-            else{
-                putToGui("None\n");
-            }
-            //file.close();
-        }
-
-
-
         void run()
         {
             gui->title();
@@ -306,8 +186,6 @@ namespace TA
             return true;
 		}
 
-
-
         bool checkGameover()
         {  
             //TODO: how to check whether gameover?
@@ -403,12 +281,131 @@ namespace TA
         }
 
 
+        // 6/13 move from run()
+        void AIvsAI(){
+            while (!checkGameover()) {   //checkGameover()   
+
+                round++;
+                AIInterface *first = nullptr;
+                AIInterface *second = nullptr;
+                BoardInterface::Tag tag;
+                if(round%2){
+                    first = m_P1;
+                	second = m_P2;
+                	tag = BoardInterface::Tag::O;
+				}
+				else{
+					first = m_P2;
+                	second = m_P1;
+                	tag = BoardInterface::Tag::X;
+				}
+
+                if (!playOneRound(first, tag, second)) {  //one move
+                    //the "first" AI made illegal move, lose the game!
+                    
+                    if(round%2)
+                        putToGui("Player1\n");
+                    else
+                        putToGui("Player2\n");
+                    putToGui(" lost!\n");
+                    //updateGuiGame();
+                    exit(-1);
+                }
+                updateGuiGame();
+            }
+            if(MainBoard.getWinTag()==BoardInterface::Tag::O){
+                putToGui("O\n");
+            }
+            else if(MainBoard.getWinTag()==BoardInterface::Tag::X){
+                putToGui("X\n");
+            }
+            else if(MainBoard.getWinTag()==BoardInterface::Tag::Tie){
+                putToGui("Tie\n");
+            }
+            else{
+                putToGui("None\n");
+            }
+            //file.close();
+        }
+        
+        // 6/13 add
+        void PLYAYERvsAI(){
+            int order;
+            while(1){
+                putToGui("Choose your order!\n");
+                putToGui("1:first   2:second\n");
+                std::cin>>order;
+                if(order == 1){
+                    call(&AIInterface::init, m_P1, false);
+                    break;
+                }
+                else if(order == 2){
+                    call(&AIInterface::init, m_P1, true);
+                    break;
+                }
+            }
+        
+
+            while (!checkGameover()) {   //checkGameover()   
+
+                round++;
+                AIInterface *first = nullptr;
+                AIInterface *second = nullptr;
+                BoardInterface::Tag tag;
+                if((round+order)%2){
+                    first = m_P1;
+                	second = nullptr;
+                	if(round%2)
+                        tag = BoardInterface::Tag::O;
+                    else
+                        tag = BoardInterface::Tag::X;
+                }
+				else{
+					first = nullptr;
+                	second = m_P1;
+                	if(round%2)
+                        tag = BoardInterface::Tag::O;
+                    else
+                        tag = BoardInterface::Tag::X;
+				}
+
+                if (!playOneRound(first, tag, second)) {  //one move
+                    //the "first" AI made illegal move, lose the game!
+                    
+                    if((round+order)%2)
+                        putToGui("AI\n");
+                    else
+                        putToGui("You\n");
+                    putToGui(" lost!\n");
+                    //updateGuiGame();
+                    exit(-1);
+                }
+                updateGuiGame();
 
 
 
-        int m_size;
+            }
+            if(MainBoard.getWinTag()==BoardInterface::Tag::O){
+                putToGui("O\n");
+            }
+            else if(MainBoard.getWinTag()==BoardInterface::Tag::X){
+                putToGui("X\n");
+            }
+            else if(MainBoard.getWinTag()==BoardInterface::Tag::Tie){
+                putToGui("Tie\n");
+            }
+            else{
+                putToGui("None\n");
+            }
+            //file.close();
+        }
+
+
+        // 6/13 add
         int game_mode;
-
+        
+        int m_size;
+        
         std::vector<int> m_ship_size;
         std::chrono::milliseconds m_runtime_limit;
 
